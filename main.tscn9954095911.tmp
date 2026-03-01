@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://dxl5fciad68th"]
+
+[ext_resource type="Script" uid="uid://bvgkhic7u50g7" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="MeshLibrary" uid="uid://dpbfj3ijj3irr" path="res://blocs.tres" id="2_0xm2m"]
+
+[node name="Main" type="Node3D" unique_id=352006222]
+script = ExtResource("1_0xm2m")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=936377698]
+transform = Transform3D(0.70710677, 0.61237246, -0.35355335, 0, 0.49999997, 0.86602545, 0.70710677, -0.61237246, 0.35355335, -10, 20, 10)
+
+[node name="GridMap" type="GridMap" parent="." unique_id=335250610]
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="PreviewGridMap" type="GridMap" parent="." unique_id=818638999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=641555438]
+
+[node name="AffichageStats" type="Label" parent="CanvasLayer" unique_id=699244014]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 30
+text = "Or : 0 | Vies : 0"
+
+[node name="MenuTours" type="HBoxContainer" parent="CanvasLayer" unique_id=1112691971]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1673516068]
+transform = Transform3D(-0.71097136, 0.6090072, -0.3516105, -1.7763568e-15, 0.5, 0.86602545, 0.7032209, 0.61571926, -0.35548574, 0, 0, 0)
+shadow_enabled = true

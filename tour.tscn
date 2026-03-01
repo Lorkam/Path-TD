@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://bver64coo5jfp"]
+
+[ext_resource type="Script" uid="uid://c55nexjt72pcd" path="res://tour.gd" id="1_vaw4n"]
+[ext_resource type="PackedScene" uid="uid://dsn7b3l72u67q" path="res://Modeles3D/weapon-ballista.glb" id="2_tyxdi"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_tyxdi"]
+radius = 3.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vaw4n"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 1, 1, 0.4)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tyxdi"]
+material = SubResource("StandardMaterial3D_vaw4n")
+top_radius = 0.6
+bottom_radius = 0.6
+height = 2.1
+
+[node name="Tour" type="Node3D" unique_id=1340307287]
+script = ExtResource("1_vaw4n")
+
+[node name="ZoneDetection" type="Area3D" parent="." unique_id=531448195]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ZoneDetection" unique_id=1255726626]
+shape = SubResource("SphereShape3D_tyxdi")
+
+[node name="Timer" type="Timer" parent="." unique_id=1752456092]
+autostart = true
+
+[node name="Surbrillance" type="MeshInstance3D" parent="." unique_id=2101710846]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+visible = false
+mesh = SubResource("CylinderMesh_tyxdi")
+
+[node name="Baliste" parent="." unique_id=1807468236 instance=ExtResource("2_tyxdi")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.2, 0)
+
+[connection signal="area_entered" from="ZoneDetection" to="." method="_on_zone_detection_area_entered"]
+[connection signal="area_exited" from="ZoneDetection" to="." method="_on_zone_detection_area_exited"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+
+[editable path="Baliste"]

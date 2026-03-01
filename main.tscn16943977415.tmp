@@ -1,0 +1,203 @@
+[gd_scene format=3 uid="uid://dxl5fciad68th"]
+
+[ext_resource type="Script" uid="uid://bvgkhic7u50g7" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="MeshLibrary" uid="uid://dpbfj3ijj3irr" path="res://blocs.tres" id="2_0xm2m"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0xm2m"]
+font_size = 100
+
+[sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
+font_size = 100
+font_color = Color(0.6901961, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_1bvp3"]
+font_size = 100
+font_color = Color(1, 1, 0, 1)
+
+[node name="Main" type="Node3D" unique_id=352006222]
+script = ExtResource("1_0xm2m")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=936377698]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 20, 10)
+
+[node name="GridMap" type="GridMap" parent="." unique_id=335250610]
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="PreviewGridMap" type="GridMap" parent="." unique_id=818638999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=641555438]
+
+[node name="AffichageStats" type="Label" parent="CanvasLayer" unique_id=699244014]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 30
+text = "Or : 0 | Vies : 0"
+
+[node name="MenuTours" type="HBoxContainer" parent="CanvasLayer" unique_id=1112691971]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="MenuPrincipal" type="ColorRect" parent="CanvasLayer" unique_id=777019599]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7058824)
+
+[node name="BoutonJouer" type="Button" parent="CanvasLayer/MenuPrincipal" unique_id=800914143]
+layout_mode = 0
+offset_left = 814.0
+offset_top = 586.0
+offset_right = 904.0
+offset_bottom = 639.0
+theme_override_font_sizes/font_size = 32
+text = "Jouer"
+
+[node name="BoutonQuitter" type="Button" parent="CanvasLayer/MenuPrincipal" unique_id=887520553]
+layout_mode = 0
+offset_left = 1014.0
+offset_top = 586.0
+offset_right = 1134.0
+offset_bottom = 639.0
+theme_override_font_sizes/font_size = 32
+text = "Quitter"
+
+[node name="Titre" type="Label" parent="CanvasLayer/MenuPrincipal" unique_id=373801328]
+layout_mode = 0
+offset_left = 779.0
+offset_top = 395.0
+offset_right = 1158.0
+offset_bottom = 532.0
+text = "Path TD"
+label_settings = SubResource("LabelSettings_0xm2m")
+
+[node name="MenuGameOver" type="ColorRect" parent="CanvasLayer" unique_id=1999951172]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7058824)
+
+[node name="Label" type="Label" parent="CanvasLayer/MenuGameOver" unique_id=1923549168]
+layout_mode = 0
+offset_left = 779.0
+offset_top = 414.0
+offset_right = 1170.0
+offset_bottom = 551.0
+text = "DÉFAITE"
+label_settings = SubResource("LabelSettings_h2yge")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoutonRecommencer" type="Button" parent="CanvasLayer/MenuGameOver" unique_id=1235145952]
+layout_mode = 0
+offset_left = 752.0
+offset_top = 615.0
+offset_right = 982.0
+offset_bottom = 668.0
+theme_override_font_sizes/font_size = 32
+text = "Recommencer"
+
+[node name="BoutonQuitter" type="Button" parent="CanvasLayer/MenuGameOver" unique_id=978001198]
+layout_mode = 0
+offset_left = 1048.0
+offset_top = 617.0
+offset_right = 1168.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 32
+text = "Quitter"
+
+[node name="MenuVictoire" type="ColorRect" parent="CanvasLayer" unique_id=2027909918]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7058824)
+
+[node name="Label" type="Label" parent="CanvasLayer/MenuVictoire" unique_id=626427102]
+layout_mode = 0
+offset_left = 791.0
+offset_top = 417.0
+offset_right = 1160.0
+offset_bottom = 554.0
+text = "Victoire"
+label_settings = SubResource("LabelSettings_1bvp3")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoutonRecommencer" type="Button" parent="CanvasLayer/MenuVictoire" unique_id=1940714887]
+layout_mode = 0
+offset_left = 760.0
+offset_top = 614.0
+offset_right = 990.0
+offset_bottom = 667.0
+theme_override_font_sizes/font_size = 32
+text = "Recommencer"
+
+[node name="BoutonQuitter" type="Button" parent="CanvasLayer/MenuVictoire" unique_id=1534395742]
+layout_mode = 0
+offset_left = 1063.0
+offset_top = 617.0
+offset_right = 1183.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 32
+text = "Quitter"
+
+[node name="FileAttenteUI" type="VBoxContainer" parent="CanvasLayer" unique_id=2129826772]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+
+[node name="MenuActionTour" type="PanelContainer" parent="CanvasLayer" unique_id=1311628408]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MenuActionTour" unique_id=1313026662]
+layout_mode = 2
+
+[node name="TexteInfo" type="Label" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=214046169]
+layout_mode = 2
+
+[node name="BtnAmeliorer" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=420953077]
+layout_mode = 2
+text = "Améliorer"
+
+[node name="BtnVendre" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=687075628]
+layout_mode = 2
+text = "Vendre"
+
+[node name="BtnFermer" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=1480729861]
+layout_mode = 2
+text = "Fermer"
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1673516068]
+transform = Transform3D(-0.71097136, 0.6090072, -0.3516105, -1.7763568e-15, 0.5, 0.86602545, 0.7032209, 0.61571926, -0.35548574, 0, 0, 0)
+shadow_enabled = true

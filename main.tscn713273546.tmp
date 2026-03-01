@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://dxl5fciad68th"]
+
+[ext_resource type="Script" uid="uid://bvgkhic7u50g7" path="res://main.gd" id="1_0xm2m"]
+[ext_resource type="MeshLibrary" uid="uid://dpbfj3ijj3irr" path="res://blocs.tres" id="2_0xm2m"]
+
+[node name="Main" type="Node3D" unique_id=352006222]
+script = ExtResource("1_0xm2m")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=936377698]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 20, 10)
+
+[node name="GridMap" type="GridMap" parent="." unique_id=335250610]
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="GridMap2" type="GridMap" parent="." unique_id=818638999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh_library = ExtResource("2_0xm2m")
+cell_size = Vector3(1, 1, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=641555438]
+
+[node name="AffichageStats" type="Label" parent="CanvasLayer" unique_id=699244014]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 30
+text = "Or : 0 | Vies : 0"
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1673516068]
+transform = Transform3D(0.49999997, -0.75, 0.4330127, 0, 0.49999994, 0.86602545, -0.86602545, -0.43301266, 0.24999997, 0, 0, 0)
+shadow_enabled = true

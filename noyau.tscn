@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://26rcd8kooqdu"]
+
+[ext_resource type="Script" uid="uid://cxvv62ghp6d8d" path="res://noyau.gd" id="1_sppbn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sppbn"]
+albedo_color = Color(0.58431375, 0, 1, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_xwlbe"]
+material = SubResource("StandardMaterial3D_sppbn")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dgn4v"]
+
+[node name="Noyau" type="Area3D" unique_id=1766115648]
+script = ExtResource("1_sppbn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=314393714]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("PrismMesh_xwlbe")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=411099120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_dgn4v")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
