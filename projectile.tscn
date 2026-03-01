@@ -2,16 +2,59 @@
 
 [ext_resource type="Script" uid="uid://isa8uclmlmi0" path="res://projectile.gd" id="1_a85iw"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_akgne"]
-albedo_color = Color(0.9882353, 0.9490196, 0, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a85iw"]
+albedo_color = Color(0.37254903, 0.23921569, 0, 1)
 
-[sub_resource type="SphereMesh" id="SphereMesh_a85iw"]
-material = SubResource("StandardMaterial3D_akgne")
-radius = 0.2
-height = 0.4
+[sub_resource type="CylinderMesh" id="CylinderMesh_qxf0c"]
+material = SubResource("StandardMaterial3D_a85iw")
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dgwo2"]
+albedo_color = Color(0.53333336, 0.53333336, 0.53333336, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_sxmqc"]
+material = SubResource("StandardMaterial3D_dgwo2")
+top_radius = 0.0
+bottom_radius = 0.08
+height = 0.2
 
 [node name="Projectile" type="Node3D" unique_id=1068156185]
 script = ExtResource("1_a85iw")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=767132029]
-mesh = SubResource("SphereMesh_a85iw")
+[node name="Tige" type="MeshInstance3D" parent="." unique_id=1306367674]
+transform = Transform3D(-0.99999994, 8.742277e-08, -3.821371e-15, 0, -4.3711385e-08, -1, -8.742277e-08, -0.99999994, 4.371139e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_qxf0c")
+
+[node name="Pointe" type="MeshInstance3D" parent="." unique_id=545972160]
+transform = Transform3D(-0.99999994, 8.742277e-08, -3.821371e-15, 0, -4.3711385e-08, -1, -8.742277e-08, -0.99999994, 4.371139e-08, -0.002, 0, -0.35)
+mesh = SubResource("CylinderMesh_sxmqc")
+
+[node name="QueueV" type="CSGBox3D" parent="." unique_id=495055722]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.149)
+size = Vector3(0.01, 0.2, 0.2)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="QueueV" unique_id=1568299713]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, 0.14, -0.1)
+operation = 2
+size = Vector3(0.01, 0.2, 0.2)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="QueueV" unique_id=703290915]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, -0.14, -0.101)
+operation = 2
+size = Vector3(0.01, 0.2, 0.2)
+
+[node name="QueueH" type="CSGBox3D" parent="." unique_id=1683656746]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0.149)
+size = Vector3(0.01, 0.2, 0.2)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="QueueH" unique_id=1391780994]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, 0.14, -0.1)
+operation = 2
+size = Vector3(0.01, 0.2, 0.2)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="QueueH" unique_id=1799885793]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, -0.14, -0.101)
+operation = 2
+size = Vector3(0.01, 0.2, 0.2)

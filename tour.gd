@@ -52,7 +52,7 @@ func _on_timer_timeout():
 func tirer_sur(cible_ennemie):
 	var proj = projectile_scene.instantiate()
 	get_tree().current_scene.add_child(proj)
-	proj.global_position = global_position + Vector3(0, 1.5, 0)
+	proj.global_position = global_position + Vector3(0, 0.7, 0)
 	proj.cible = cible_ennemie
 	# 3. On transmet les dégâts au projectile
 	proj.degats = GameData.tours[type_tour]["degats"]
