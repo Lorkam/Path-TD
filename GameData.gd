@@ -6,7 +6,7 @@ var taille_file_plateformes = 2 # Nombre de plateformes visibles d'avance en plu
 
 # --- VARIABLES CAMÉRA ---
 var camera = {
-	"vitesse_camera" : 20.0,
+	"vitesse_camera" : 15.0,
 	"vitesse_zoom" : 2.0,
 	"hauteur_max" : 40.0, # zoom minimum
 	"hauteur_min" : 6.0, # zoom maximun

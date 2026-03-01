@@ -6,9 +6,6 @@
 [ext_resource type="Script" uid="uid://cp8286oa0pho3" path="res://ui_manager.gd" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://df477eqqx2f8r" path="res://wave_manager.gd" id="5_lquwl"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_0xm2m"]
-font_size = 100
-
 [sub_resource type="LabelSettings" id="LabelSettings_h2yge"]
 font_size = 100
 font_color = Color(0.6901961, 0, 0, 1)
@@ -52,41 +49,6 @@ offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
 alignment = 1
-
-[node name="MenuPrincipal" type="ColorRect" parent="CanvasLayer" unique_id=777019599]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.7058824)
-
-[node name="BoutonJouer" type="Button" parent="CanvasLayer/MenuPrincipal" unique_id=800914143]
-layout_mode = 0
-offset_left = 814.0
-offset_top = 586.0
-offset_right = 904.0
-offset_bottom = 639.0
-theme_override_font_sizes/font_size = 32
-text = "Jouer"
-
-[node name="BoutonQuitter" type="Button" parent="CanvasLayer/MenuPrincipal" unique_id=887520553]
-layout_mode = 0
-offset_left = 1014.0
-offset_top = 586.0
-offset_right = 1134.0
-offset_bottom = 639.0
-theme_override_font_sizes/font_size = 32
-text = "Quitter"
-
-[node name="Titre" type="Label" parent="CanvasLayer/MenuPrincipal" unique_id=373801328]
-layout_mode = 0
-offset_left = 779.0
-offset_top = 395.0
-offset_right = 1158.0
-offset_bottom = 532.0
-text = "Path TD"
-label_settings = SubResource("LabelSettings_0xm2m")
 
 [node name="MenuGameOver" type="ColorRect" parent="CanvasLayer" unique_id=1999951172]
 visible = false

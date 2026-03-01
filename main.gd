@@ -91,8 +91,9 @@ func _ready():
 	add_child(indicateur_portee)
 	indicateur_portee.hide()
 	
-	piocher_prochaine_plateforme() 
-	ui.afficher_menu_principal()
+	piocher_prochaine_plateforme()
+	ui.afficher_interface_jeu()
+	commencer_jeu()
 
 # ==========================================
 # GESTION DU TEMPS ET DES ÉTATS

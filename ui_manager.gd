@@ -17,7 +17,6 @@ signal avance_rapide_pressee
 @onready var affichage_stats = $AffichageStats
 @onready var menu_tours = $MenuTours
 @onready var menu_action_tours = $MenuActionTour
-@onready var menu_principal = $MenuPrincipal
 @onready var menu_game_over = $MenuGameOver
 @onready var menu_victoire = $MenuVictoire
 @onready var file_attente_ui = $FileAttenteUI
@@ -29,8 +28,6 @@ signal avance_rapide_pressee
 
 func _ready():
 	# On relie les clics de nos boutons à l'envoi de nos signaux
-	$MenuPrincipal/BoutonJouer.pressed.connect(func(): bouton_jouer_presse.emit())
-	$MenuPrincipal/BoutonQuitter.pressed.connect(func(): bouton_quitter_presse.emit())
 	$MenuGameOver/BoutonRecommencer.pressed.connect(func(): bouton_recommencer_presse.emit())
 	$MenuGameOver/BoutonQuitter.pressed.connect(func(): bouton_quitter_presse.emit())
 	$MenuVictoire/BoutonRecommencer.pressed.connect(func(): bouton_recommencer_presse.emit())
@@ -50,18 +47,7 @@ func _ready():
 # GESTION DE L'AFFICHAGE DES MENUS
 # ==========================================
 
-func afficher_menu_principal():
-	menu_principal.show()
-	menu_game_over.hide()
-	menu_victoire.hide()
-	affichage_stats.hide()
-	menu_tours.hide()
-	file_attente_ui.hide()
-	menu_action_tour.hide()
-	controles_temps.hide()
-
 func afficher_interface_jeu():
-	menu_principal.hide()
 	affichage_stats.show()
 	menu_tours.show()
 	file_attente_ui.show()
