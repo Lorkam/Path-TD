@@ -16,6 +16,7 @@ signal avance_rapide_pressee
 
 @onready var affichage_stats = $AffichageStats
 @onready var menu_tours = $MenuTours
+@onready var menu_action_tours = $MenuActionTour
 @onready var menu_principal = $MenuPrincipal
 @onready var menu_game_over = $MenuGameOver
 @onready var menu_victoire = $MenuVictoire
@@ -72,6 +73,7 @@ func afficher_game_over():
 	menu_tours.hide()
 	file_attente_ui.hide()
 	controles_temps.hide()
+	menu_action_tours.hide()
 
 func afficher_victoire():
 	menu_victoire.show()
@@ -79,6 +81,7 @@ func afficher_victoire():
 	menu_tours.hide()
 	file_attente_ui.hide()
 	controles_temps.hide()
+	menu_action_tour.hide()
 
 func mettre_a_jour_texte_pause(en_pause: bool):
 	if en_pause:
@@ -148,3 +151,6 @@ func creer_grille_ui(pattern) -> GridContainer:
 			elif pattern[z][x] > 0: rect.color = Color(0.6, 0.4, 0.2)
 			grille_2d.add_child(rect)
 	return grille_2d
+
+func desactiver_bouton_vague(desactive: bool):
+	$ControlesTemps/BtnLancerVague.disabled = desactive

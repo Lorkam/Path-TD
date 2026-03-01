@@ -81,7 +81,7 @@ func _ready():
 	# --- CRÉATION DE L'INDICATEUR DE PORTÉE ---
 	indicateur_portee = MeshInstance3D.new()
 	var cyl_portee = CylinderMesh.new()
-	cyl_portee.height = 0.1 # Un disque tout plat
+	cyl_portee.height = 0.25 # Un disque tout plat
 	var mat_portee = StandardMaterial3D.new()
 	mat_portee.albedo_color = Color(1.0, 0.8, 0.0, 0.3) # Jaune très transparent
 	mat_portee.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -119,14 +119,15 @@ func commencer_jeu():
 	ui.afficher_interface_jeu()
 	maj_emplacements_valides()
 	mettre_a_jour_ui()
+	ui.desactiver_bouton_vague(true)
 
 func declencher_game_over():
-	Engine.time_scale = 1.0
+	Engine.time_scale = 0
 	phase_actuelle = Phase.FIN
 	ui.afficher_game_over()
 
 func declencher_victoire():
-	Engine.time_scale = 1.0
+	Engine.time_scale = 0
 	phase_actuelle = Phase.FIN
 	ui.afficher_victoire()
 
@@ -161,7 +162,7 @@ func selectionner_tour(id: String):
 func _unhandled_input(event):
 	if phase_actuelle == Phase.MENU or phase_actuelle == Phase.FIN: return
 
-	# --- NOUVEAUX RACCOURCIS CLAVIER ---
+	# --- RACCOURCIS CLAVIER ---
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_R and phase_actuelle == Phase.PLACEMENT:
 			pivoter_pattern()
@@ -172,29 +173,64 @@ func _unhandled_input(event):
 		elif event.keycode == KEY_F2:
 			mettre_avance_rapide()
 			
+	# --- CLIC DROIT : TOUT DÉSÉLECTIONNER ---
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
-			tour_selectionnee = ""
+			tour_selectionnee = "" # On lâche la tour en main
 			if fantome_tour: fantome_tour.hide()
+			
+			if case_tour_selectionnee != Vector3i(999, 999, 999): 
+				fermer_menu_action_tour() # On ferme le menu d'une tour posée
+				
 			mettre_a_jour_ui()
 		
+	# --- CLIC GAUCHE ---
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var pos_souris = get_viewport().get_mouse_position()
 		var impact = sol_imaginaire.intersects_ray(camera.project_ray_origin(pos_souris), camera.project_ray_normal(pos_souris))
-		if impact == null: return
-		var case_clic = grid_map.local_to_map(impact)
 		
-		if case_clic in tours_sur_grille and phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
-			ouvrir_menu_action_tour(case_clic)
+		# 1. On clique complètement dans le vide spatial (en dehors de la carte)
+		if impact == null: 
+			if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
+				tour_selectionnee = ""
+				if fantome_tour: fantome_tour.hide()
+				if case_tour_selectionnee != Vector3i(999, 999, 999): fermer_menu_action_tour()
+				mettre_a_jour_ui()
 			return
 			
+		var case_clic = grid_map.local_to_map(impact)
+		
+		# 2. Phase de Placement de Plateforme
 		if phase_actuelle == Phase.PLACEMENT:
 			if case_preview_actuelle in emplacements_valides:
 				placer_zone(case_preview_actuelle)
-				
-		elif phase_actuelle in [Phase.PREPARATION, Phase.COMBAT] and tour_selectionnee != "":
-			if grid_map.get_cell_item(case_clic) == 0 and not case_clic in tours_sur_grille:
-				placer_tour(case_clic, tour_selectionnee)
+			return
+			
+		# 3. Phase de Préparation / Combat
+		if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
+			
+			# A. On clique sur une tour déjà posée
+			if case_clic in tours_sur_grille:
+				ouvrir_menu_action_tour(case_clic)
+				# Si on avait par erreur une tour en main, on l'annule pour éviter les bugs
+				tour_selectionnee = ""
+				if fantome_tour: fantome_tour.hide()
+				mettre_a_jour_ui()
+				return
+			
+			# B. On a une tour en main et on essaie de la poser
+			if tour_selectionnee != "":
+				if grid_map.get_cell_item(case_clic) == 0:
+					placer_tour(case_clic, tour_selectionnee)
+				else:
+					# On a cliqué sur un chemin ou une mauvaise case -> Désélection
+					tour_selectionnee = ""
+					if fantome_tour: fantome_tour.hide()
+					mettre_a_jour_ui()
+			
+			# C. On a une tour de sélectionnée (menu ouvert) et on clique sur une case vide / chemin
+			elif case_tour_selectionnee != Vector3i(999, 999, 999):
+				fermer_menu_action_tour()
 
 func _process(delta):
 	if phase_actuelle == Phase.MENU or phase_actuelle == Phase.FIN: return
@@ -354,6 +390,7 @@ func placer_zone(centre: Vector3i):
 	preview_grid.clear()
 	piocher_prochaine_plateforme() 
 	maj_emplacements_valides()     
+	ui.desactiver_bouton_vague(false)
 	mettre_a_jour_ui()
 
 func dessiner_preview(centre: Vector3i):
@@ -384,13 +421,18 @@ func placer_tour(case: Vector3i, id_tour: String):
 		mettre_a_jour_ui()
 
 func lancer_vague():
-	if phase_actuelle == Phase.COMBAT: return # Sécurité : empêche de lancer deux vagues en même temps
+	# Sécurité : On ne peut lancer la vague QUE si on a fini de placer la plateforme !
+	if phase_actuelle != Phase.PREPARATION: 
+		print("Action refusée : Placez d'abord la plateforme.")
+		return 
+		
 	var bouts = trouver_bouts_ouverts()
 	if bouts.is_empty(): return
 	
 	phase_actuelle = Phase.COMBAT
 	wave_manager.lancer_vague(bouts)
 	mettre_a_jour_ui()
+	ui.desactiver_bouton_vague(true)
 
 func trouver_bouts_ouverts() -> Array:
 	var bouts = []
