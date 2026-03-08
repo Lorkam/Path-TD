@@ -1,18 +1,17 @@
 [gd_scene format=3 uid="uid://26rcd8kooqdu"]
 
 [ext_resource type="Script" uid="uid://cxvv62ghp6d8d" path="res://noyau.gd" id="1_sppbn"]
-[ext_resource type="PackedScene" uid="uid://m0bwrtf13jff" path="res://Modeles3D/noyau.gltf" id="2_xwlbe"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_uw4gf"]
 height = 4.0
-radius = 1.5
+radius = 1.1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xwlbe"]
 albedo_color = Color(0.4, 0.4, 0.4, 1)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_uw4gf"]
 material = SubResource("StandardMaterial3D_xwlbe")
-top_radius = 1.0
+top_radius = 0.75
 bottom_radius = 1.0
 height = 0.5
 radial_segments = 12
@@ -23,9 +22,6 @@ script = ExtResource("1_sppbn")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=411099120]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 shape = SubResource("CylinderShape3D_uw4gf")
-
-[node name="Noyau" parent="." unique_id=463813036 instance=ExtResource("2_xwlbe")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 
 [node name="Fondation" type="MeshInstance3D" parent="." unique_id=51436472]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)

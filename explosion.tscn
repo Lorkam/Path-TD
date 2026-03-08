@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://t8djvoagea3m"]
+
+[ext_resource type="Script" uid="uid://buiwi0hm74k78" path="res://explosion.gd" id="1_q7epf"]
+
+[sub_resource type="Curve" id="Curve_vxas0"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_j4sxf"]
+curve = SubResource("Curve_vxas0")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_m5xho"]
+direction = Vector3(0, 1, 1)
+spread = 180.0
+initial_velocity_min = 5.0
+initial_velocity_max = 10.0
+gravity = Vector3(0, -15, 0)
+damping_min = 0.5
+damping_max = 1.5000001
+scale_min = 0.19999999
+scale_max = 0.5
+scale_curve = SubResource("CurveTexture_j4sxf")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q7epf"]
+shading_mode = 0
+albedo_color = Color(1, 0.8235294, 0, 1)
+proximity_fade_enabled = true
+proximity_fade_distance = 0.1
+
+[sub_resource type="SphereMesh" id="SphereMesh_vxas0"]
+material = SubResource("StandardMaterial3D_q7epf")
+
+[node name="Explosion" type="Node3D" unique_id=459615435]
+script = ExtResource("1_q7epf")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1459012474]
+emitting = false
+amount = 20
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_m5xho")
+draw_pass_1 = SubResource("SphereMesh_vxas0")

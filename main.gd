@@ -28,7 +28,6 @@ var vies_joueur = GameData.vies_depart
 enum Phase { MENU, PLACEMENT, PREPARATION, COMBAT, FIN }
 var phase_actuelle = Phase.MENU
 
-# --- GESTION DU TEMPS ---
 var vitesse_actuelle = 1.0
 var jeu_en_pause = false
 
@@ -52,9 +51,10 @@ func _ready():
 	noeud_marqueurs = Node3D.new()
 	add_child(noeud_marqueurs)
 	
+	# --- 1. CRÉATION DU SOL ET TERRAIN DE BASE ---
 	generer_terrain_base()
+	generer_tuiles_initiales() # <-- Place les 4 tuiles de départ
 	
-	# --- CONNEXIONS DES SIGNAUX DE L'UI ---
 	ui.bouton_jouer_presse.connect(commencer_jeu)
 	ui.bouton_quitter_presse.connect(quitter_jeu)
 	ui.bouton_recommencer_presse.connect(recommencer_jeu)
@@ -63,7 +63,6 @@ func _ready():
 	ui.vendre_tour_pressee.connect(vendre_tour_selectionnee)
 	ui.tour_selectionnee.connect(selectionner_tour)
 	
-	# --- NOUVEAUX SIGNAUX DE TEMPS ET VAGUES ---
 	ui.lancer_vague_presse.connect(lancer_vague)
 	ui.pause_pressee.connect(basculer_pause)
 	ui.vitesse_normale_pressee.connect(mettre_vitesse_normale)
@@ -78,22 +77,71 @@ func _ready():
 	for i in range(GameData.taille_file_plateformes):
 		file_attente_patterns.append(GameData.patterns_plateformes.pick_random())
 		
-	# --- CRÉATION DE L'INDICATEUR DE PORTÉE ---
 	indicateur_portee = MeshInstance3D.new()
 	var cyl_portee = CylinderMesh.new()
-	cyl_portee.height = 0.25 # Un disque tout plat
+	cyl_portee.height = 0.25 
 	var mat_portee = StandardMaterial3D.new()
-	mat_portee.albedo_color = Color(1.0, 0.8, 0.0, 0.3) # Jaune très transparent
+	mat_portee.albedo_color = Color(1.0, 0.8, 0.0, 0.3) 
 	mat_portee.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat_portee.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED # Brille la nuit
+	mat_portee.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED 
 	indicateur_portee.mesh = cyl_portee
 	indicateur_portee.set_surface_override_material(0, mat_portee)
 	add_child(indicateur_portee)
 	indicateur_portee.hide()
 	
 	piocher_prochaine_plateforme()
-	ui.afficher_interface_jeu()
 	commencer_jeu()
+
+# ==========================================
+# GÉNÉRATION DYNAMIQUE DES MODÈLES 3D
+# ==========================================
+
+func creer_visuel_entite(infos: Dictionary) -> Node3D:
+	var chemin_modele = infos.get("modele", "")
+	
+	if chemin_modele != "" and ResourceLoader.exists(chemin_modele):
+		var scene = load(chemin_modele).instantiate()
+		
+		# --- 1. CORRECTION DE LA ROTATION ---
+		var rot_y = infos.get("rotation_y", 0.0)
+		scene.rotation_degrees.y = rot_y
+		
+		# --- 2. CORRECTION DE LA TAILLE (SCALE) ---
+		# On récupère ton champ "scale" (par défaut 1.0 si tu l'as oublié sur un monstre)
+		var echelle = infos.get("scale", 1.0)
+		# On l'applique sur les 3 axes (X, Y, Z) pour garder les proportions
+		scene.scale = Vector3(echelle, echelle, echelle)
+		
+		# --- 3. CORRECTION DE LA HAUTEUR ---
+		var hauteur = infos.get("hauteur_y", 0.2)
+		scene.position.y = hauteur
+		
+		# --- 4. GESTION DE L'ANIMATION ---
+		var anim = infos.get("animation", "")
+		var lecteurs = scene.find_children("*", "AnimationPlayer", true, false)
+		
+		for lecteur in lecteurs:
+			if lecteur != null and lecteur is AnimationPlayer:
+				if anim != "" and lecteur.has_animation(anim):
+					var animation_trouvee = lecteur.get_animation(anim)
+					if animation_trouvee != null:
+						animation_trouvee.loop_mode = Animation.LOOP_LINEAR
+						
+					lecteur.play(anim)
+					break 
+					
+		return scene
+			
+	# Sinon, Cube Rouge d'erreur
+	var fallback = MeshInstance3D.new()
+	var cube = BoxMesh.new()
+	cube.size = Vector3(0.5, 0.5, 0.5)
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color.RED
+	fallback.mesh = cube
+	fallback.set_surface_override_material(0, mat)
+	fallback.position = Vector3(0, 0.25, 0)
+	return fallback
 
 # ==========================================
 # GESTION DU TEMPS ET DES ÉTATS
@@ -111,7 +159,7 @@ func mettre_vitesse_normale():
 	if not jeu_en_pause: Engine.time_scale = vitesse_actuelle
 
 func mettre_avance_rapide():
-	vitesse_actuelle = 2.0 # Tu peux mettre 3.0 si tu veux que ce soit encore plus rapide !
+	vitesse_actuelle = 2.0 
 	if not jeu_en_pause: Engine.time_scale = vitesse_actuelle
 
 func commencer_jeu():
@@ -133,20 +181,23 @@ func declencher_victoire():
 	ui.afficher_victoire()
 
 func recommencer_jeu():
-	Engine.time_scale = 1.0 # Très important de réinitialiser le temps !
+	Engine.time_scale = 1.0 
 	get_tree().reload_current_scene()
 
 func quitter_jeu():
 	get_tree().quit()
 
 func selectionner_tour(id: String):
-	# On autorise désormais la sélection pendant le COMBAT !
 	if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
 		tour_selectionnee = id
 		
 		if fantome_tour: fantome_tour.queue_free() 
 		fantome_tour = tour_scene.instantiate()
 		fantome_tour.id_tour = id
+		
+		# --- NOUVEAU : On ajoute le visuel à la volée ! ---
+		var infos_tour = GameData.tours[id]
+		fantome_tour.add_child(creer_visuel_entite(infos_tour))
 		
 		fantome_tour.set_process(false) 
 		if fantome_tour.has_node("ZoneDetection"):
@@ -163,7 +214,6 @@ func selectionner_tour(id: String):
 func _unhandled_input(event):
 	if phase_actuelle == Phase.MENU or phase_actuelle == Phase.FIN: return
 
-	# --- RACCOURCIS CLAVIER ---
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_R and phase_actuelle == Phase.PLACEMENT:
 			pivoter_pattern()
@@ -174,23 +224,20 @@ func _unhandled_input(event):
 		elif event.keycode == KEY_F2:
 			mettre_avance_rapide()
 			
-	# --- CLIC DROIT : TOUT DÉSÉLECTIONNER ---
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
-			tour_selectionnee = "" # On lâche la tour en main
+			tour_selectionnee = "" 
 			if fantome_tour: fantome_tour.hide()
 			
 			if case_tour_selectionnee != Vector3i(999, 999, 999): 
-				fermer_menu_action_tour() # On ferme le menu d'une tour posée
+				fermer_menu_action_tour() 
 				
 			mettre_a_jour_ui()
 		
-	# --- CLIC GAUCHE ---
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var pos_souris = get_viewport().get_mouse_position()
 		var impact = sol_imaginaire.intersects_ray(camera.project_ray_origin(pos_souris), camera.project_ray_normal(pos_souris))
 		
-		# 1. On clique complètement dans le vide spatial (en dehors de la carte)
 		if impact == null: 
 			if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
 				tour_selectionnee = ""
@@ -201,53 +248,33 @@ func _unhandled_input(event):
 			
 		var case_clic = grid_map.local_to_map(impact)
 		
-		# 2. Phase de Placement de Plateforme
 		if phase_actuelle == Phase.PLACEMENT:
 			if case_preview_actuelle in emplacements_valides:
 				placer_zone(case_preview_actuelle)
 			return
 			
-		# 3. Phase de Préparation / Combat
 		if phase_actuelle in [Phase.PREPARATION, Phase.COMBAT]:
-			
-			# A. On clique sur une tour déjà posée
 			if case_clic in tours_sur_grille:
 				ouvrir_menu_action_tour(case_clic)
-				# Si on avait par erreur une tour en main, on l'annule pour éviter les bugs
 				tour_selectionnee = ""
 				if fantome_tour: fantome_tour.hide()
 				mettre_a_jour_ui()
 				return
 			
-			# B. On a une tour en main et on essaie de la poser
 			if tour_selectionnee != "":
 				if grid_map.get_cell_item(case_clic) == 0:
 					placer_tour(case_clic, tour_selectionnee)
 				else:
-					# On a cliqué sur un chemin ou une mauvaise case -> Désélection
 					tour_selectionnee = ""
 					if fantome_tour: fantome_tour.hide()
 					mettre_a_jour_ui()
 			
-			# C. On a une tour de sélectionnée (menu ouvert) et on clique sur une case vide / chemin
 			elif case_tour_selectionnee != Vector3i(999, 999, 999):
 				fermer_menu_action_tour()
 
 func _process(delta):
 	if phase_actuelle == Phase.MENU or phase_actuelle == Phase.FIN: return
-
-	# Caméra
-	var direction_cam = Vector3.ZERO
-	if Input.is_key_pressed(KEY_Z) or Input.is_key_pressed(KEY_UP): direction_cam.z -= 1
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN): direction_cam.z += 1
-	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_LEFT): direction_cam.x -= 1
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): direction_cam.x += 1
-	if direction_cam != Vector3.ZERO:
-		direction_cam = direction_cam.normalized()
-		camera.global_position.x += direction_cam.x * GameData.camera["vitesse_camera"] * delta
-		camera.global_position.z += direction_cam.z * GameData.camera["vitesse_camera"] * delta
 		
-	# Survol Souris
 	var pos_souris = get_viewport().get_mouse_position()
 	var impact = sol_imaginaire.intersects_ray(camera.project_ray_origin(pos_souris), camera.project_ray_normal(pos_souris))
 	if impact == null: return
@@ -258,7 +285,6 @@ func _process(delta):
 		if case_survolee in tours_sur_grille: tours_sur_grille[case_survolee].set_surbrillance(true)
 		case_tour_survolee = case_survolee
 	
-	# 1. Prévisualisation de la Plateforme
 	if phase_actuelle == Phase.PLACEMENT:
 		var centre_x = snapped(case_survolee.x, GameData.taille_plateforme)
 		var centre_z = snapped(case_survolee.z, GameData.taille_plateforme)
@@ -272,7 +298,6 @@ func _process(delta):
 			preview_grid.clear()
 			case_preview_actuelle = Vector3i(999, 999, 999)
 			
-	# 2. Prévisualisation du Fantôme de Tour
 	elif phase_actuelle in [Phase.PREPARATION, Phase.COMBAT] and tour_selectionnee != "":
 		if grid_map.get_cell_item(case_survolee) == 0 and fantome_tour:
 			fantome_tour.show()
@@ -281,28 +306,26 @@ func _process(delta):
 		else:
 			if fantome_tour: fantome_tour.hide()
 
-	# --- 3. NOUVEAU : AFFICHAGE DE LA PORTÉE ---
 	if case_tour_selectionnee != Vector3i(999, 999, 999):
-		# Cas A : Une tour est cliquée (le menu d'amélioration est ouvert)
 		var tour = tours_sur_grille[case_tour_selectionnee]
-		var portee = GameData.tours[tour.id_tour]["portee"]
-		indicateur_portee.scale = Vector3(portee * 2, 1, portee * 2) # Le rayon devient le diamètre
+		# On lit la portée du niveau actuel
+		var portee = GameData.tours[tour.id_tour]["portee"][tour.niveau - 1] 
+		indicateur_portee.scale = Vector3(portee * 2, 1, portee * 2) 
 		indicateur_portee.global_position = Vector3(tour.global_position.x, 0.55, tour.global_position.z)
 		indicateur_portee.show()
 		
 	elif phase_actuelle in [Phase.PREPARATION, Phase.COMBAT] and tour_selectionnee != "":
-		# Cas B : On a une tour en main pour la poser
 		if grid_map.get_cell_item(case_survolee) == 0:
-			var portee = GameData.tours[tour_selectionnee]["portee"]
+			# On lit la portée du niveau 1 car on est en train d'acheter
+			var portee = GameData.tours[tour_selectionnee]["portee"][0] 
 			indicateur_portee.scale = Vector3(portee * 2, 1, portee * 2)
 			var pos_locale = grid_map.map_to_local(case_survolee)
 			indicateur_portee.global_position = Vector3(pos_locale.x, 0.55, pos_locale.z)
 			indicateur_portee.show()
 		else:
-			indicateur_portee.hide() # Caché si on survole un chemin
+			indicateur_portee.hide() 
 			
 	else:
-		# Cas C : Rien de sélectionné
 		indicateur_portee.hide()
 
 # ==========================================
@@ -411,6 +434,11 @@ func placer_tour(case: Vector3i, id_tour: String):
 	if or_joueur >= prix:
 		var tour = tour_scene.instantiate()
 		tour.id_tour = id_tour 
+		
+		# --- NOUVEAU : On ajoute le visuel à la volée ! ---
+		var infos_tour = GameData.tours[id_tour]
+		tour.add_child(creer_visuel_entite(infos_tour))
+		
 		add_child(tour)
 		var c = grid_map.map_to_local(case)
 		tour.global_position = Vector3(c.x, 0.5, c.z)
@@ -422,7 +450,6 @@ func placer_tour(case: Vector3i, id_tour: String):
 		mettre_a_jour_ui()
 
 func lancer_vague():
-	# Sécurité : On ne peut lancer la vague QUE si on a fini de placer la plateforme !
 	if phase_actuelle != Phase.PREPARATION: 
 		print("Action refusée : Placez d'abord la plateforme.")
 		return 
@@ -458,6 +485,11 @@ func creer_ennemi(case_depart: Vector3i, type_ennemi: String):
 		
 	var nouvel_ennemi = ennemi_scene.instantiate()
 	nouvel_ennemi.type_ennemi = type_ennemi
+	
+	# --- NOUVEAU : On ajoute le visuel à la volée ! ---
+	var infos_ennemi = GameData.ennemis[type_ennemi]
+	nouvel_ennemi.add_child(creer_visuel_entite(infos_ennemi))
+	
 	add_child(nouvel_ennemi)
 	
 	var centre_3d = grid_map.map_to_local(case_depart)
@@ -480,6 +512,18 @@ func terminer_vague():
 	mettre_a_jour_ui()
 
 func generer_terrain_base():
+	# CRÉATION DU SOL GÉANT
+	var sol_visuel = MeshInstance3D.new()
+	var plane_mesh = BoxMesh.new()
+	plane_mesh.size = Vector3(200, 0.1, 200) # Très grand pour couvrir la vue
+	var mat_sol = StandardMaterial3D.new()
+	mat_sol.albedo_color = Color(0.15, 0.25, 0.1) # Vert foncé naturel
+	sol_visuel.mesh = plane_mesh
+	sol_visuel.set_surface_override_material(0, mat_sol)
+	sol_visuel.global_position = Vector3(0, -0.05, 0) # Juste sous la grille
+	add_child(sol_visuel)
+	
+	# Génération classique de la grille centrale
 	for x in range(-2, 3):
 		for z in range(-2, 3):
 			var absolue = Vector3i(x, 0, z)
@@ -493,9 +537,66 @@ func generer_terrain_base():
 				grid_map.set_cell_item(absolue, infos["id"], map_rotations[infos["rot"]])
 				astar.set_point_solid(Vector2i(absolue.x, absolue.z), false)
 				
+	# Création et injection du Noyau dynamique 
 	var noyau = noyau_scene.instantiate()
+	
+	# On crée le visuel avec notre super fonction
+	var visuel_noyau = creer_visuel_entite(GameData.noyau)
+	
+	# On applique le petit ajustement de hauteur si besoin
+	visuel_noyau.position.y += GameData.noyau.get("hauteur_y", 0.0)
+	
+	noyau.add_child(visuel_noyau)
 	add_child(noyau)
+	
+	# Position centrale de la carte
 	noyau.global_position = Vector3(0.5, 0.5, 0.5)
+
+# --- NOUVEAU : PLACEMENT AUTOMATIQUE DES 4 TUILES DE DÉPART ---
+func generer_tuiles_initiales():
+	var directions = [Vector3i(5, 0, 0), Vector3i(-5, 0, 0), Vector3i(0, 0, 5), Vector3i(0, 0, -5)]
+	var patterns_possibles = GameData.patterns_plateformes.duplicate()
+	
+	for centre in directions:
+		patterns_possibles.shuffle()
+		var place = false
+		
+		for base_pattern in patterns_possibles:
+			if place: break
+			var current_pattern = base_pattern.duplicate(true)
+			
+			for rot in range(4):
+				pattern_en_attente = current_pattern
+				index_rotation = rot
+				
+				if est_placement_valide(centre):
+					# Placer les blocs manuellement sans déclencher toute l'UI
+					for x in range(-2, 3):
+						for z in range(-2, 3):
+							var case_absolue = Vector3i(centre.x + x, 0, centre.z + z)
+							var type_bloc = pattern_en_attente[z + 2][x + 2] 
+							if type_bloc == 0:
+								grid_map.set_cell_item(case_absolue, 0, 0)
+								astar.set_point_solid(Vector2i(case_absolue.x, case_absolue.z), true)
+							else:
+								var infos = obtenir_modele_et_rotation(x + 2, z + 2, pattern_en_attente)
+								grid_map.set_cell_item(case_absolue, infos["id"], map_rotations[infos["rot"]])
+								astar.set_point_solid(Vector2i(case_absolue.x, case_absolue.z), false)
+					place = true
+					break
+				
+				# Rotation manuelle pour tester le prochain angle
+				var nouveau_pattern = []
+				for i in range(5):
+					var ligne = []
+					for j in range(5): ligne.append(current_pattern[4 - j][i])
+					nouveau_pattern.append(ligne)
+				current_pattern = nouveau_pattern
+	
+	# Nettoyage de fin
+	pattern_en_attente = []
+	index_rotation = 0
+
 
 # ==========================================
 # LIENS VERS L'UI (Signaux et Appels)
@@ -531,7 +632,12 @@ func ouvrir_menu_action_tour(case: Vector3i):
 	case_tour_selectionnee = case
 	var tour = tours_sur_grille[case]
 	var stats = GameData.tours[tour.id_tour]
-	ui.ouvrir_menu_action_tour(tour.id_tour, tour.niveau, stats["prix_amelioration"], stats["prix_revente"])
+	
+	# On lit les prix du niveau actuel (index niveau - 1)
+	var prix_am = stats["prix_amelioration"][tour.niveau - 1]
+	var prix_rev = stats["prix_revente"][tour.niveau - 1]
+	
+	ui.ouvrir_menu_action_tour(tour.id_tour, tour.niveau, prix_am, prix_rev)
 
 func fermer_menu_action_tour():
 	case_tour_selectionnee = Vector3i(999,999,999)
@@ -539,7 +645,11 @@ func fermer_menu_action_tour():
 
 func ameliorer_tour_selectionnee():
 	var tour = tours_sur_grille[case_tour_selectionnee]
-	var prix = GameData.tours[tour.id_tour]["prix_amelioration"]
+	
+	if tour.niveau >= 3: 
+		return # Sécurité : la tour est déjà au max
+		
+	var prix = GameData.tours[tour.id_tour]["prix_amelioration"][tour.niveau - 1]
 	
 	if or_joueur >= prix:
 		or_joueur -= prix
@@ -549,7 +659,7 @@ func ameliorer_tour_selectionnee():
 
 func vendre_tour_selectionnee():
 	var tour = tours_sur_grille[case_tour_selectionnee]
-	var gain = GameData.tours[tour.id_tour]["prix_revente"]
+	var gain = GameData.tours[tour.id_tour]["prix_revente"][tour.niveau - 1]
 	
 	or_joueur += gain
 	tour.queue_free()

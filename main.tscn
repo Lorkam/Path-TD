@@ -76,6 +76,7 @@ offset_left = 752.0
 offset_top = 615.0
 offset_right = 982.0
 offset_bottom = 668.0
+focus_mode = 0
 theme_override_font_sizes/font_size = 32
 text = "Recommencer"
 
@@ -85,6 +86,7 @@ offset_left = 1048.0
 offset_top = 617.0
 offset_right = 1168.0
 offset_bottom = 670.0
+focus_mode = 0
 theme_override_font_sizes/font_size = 32
 text = "Quitter"
 
@@ -114,6 +116,7 @@ offset_left = 760.0
 offset_top = 614.0
 offset_right = 990.0
 offset_bottom = 667.0
+focus_mode = 0
 theme_override_font_sizes/font_size = 32
 text = "Recommencer"
 
@@ -123,6 +126,7 @@ offset_left = 1063.0
 offset_top = 617.0
 offset_right = 1183.0
 offset_bottom = 670.0
+focus_mode = 0
 theme_override_font_sizes/font_size = 32
 text = "Quitter"
 
@@ -155,14 +159,17 @@ layout_mode = 2
 
 [node name="BtnAmeliorer" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=420953077]
 layout_mode = 2
+focus_mode = 0
 text = "Améliorer"
 
 [node name="BtnVendre" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=687075628]
 layout_mode = 2
+focus_mode = 0
 text = "Vendre"
 
 [node name="BtnFermer" type="Button" parent="CanvasLayer/MenuActionTour/VBoxContainer" unique_id=1480729861]
 layout_mode = 2
+focus_mode = 0
 text = "Fermer"
 
 [node name="ControlesTemps" type="HBoxContainer" parent="CanvasLayer" unique_id=1579644427]
@@ -173,21 +180,25 @@ offset_bottom = 66.0
 
 [node name="BtnLancerVague" type="Button" parent="CanvasLayer/ControlesTemps" unique_id=514459770]
 layout_mode = 2
+focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "⚔️ Lancer Vague"
 
 [node name="BtnPause" type="Button" parent="CanvasLayer/ControlesTemps" unique_id=1059543735]
 layout_mode = 2
+focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "II Pause"
 
 [node name="BtnVitesse1" type="Button" parent="CanvasLayer/ControlesTemps" unique_id=540525000]
 layout_mode = 2
+focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "▶ x1"
 
 [node name="BtnVitesse2" type="Button" parent="CanvasLayer/ControlesTemps" unique_id=2055420136]
 layout_mode = 2
+focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "▶▶ x2"
 
